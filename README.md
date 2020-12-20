@@ -32,47 +32,48 @@ Um Daten auf die Serielle Schnittstelle auszugeben, sind keine zusätzlichen Obj
 
 ### Beispiele
 
-* [Serielle Ausgabe](main.cpp) - demonstriert die verschiedenen Ausgabemöglichkeiten mit `printf`.
-* [Serielle Eingabe](Serialscanf/src/main.cpp) - demonstriert die verschiedenen Eingabemöglichkeiten mit `scanf`. 
-* [Serielle Schnittstelle](SerialAll/src/main.cpp) - Ausgabe, mittels `printf` auf allen Seriellen Schnittstelle des Boards. Muss für DISCO_L475VG_IOT01A angepasst werden.
-* [Serial Master](SerialMaster/src/main.cpp), [Serial Slave](SerialSlave/src/main.cpp) - Kommunikation zwischen zwei Boards über die Serielle Schnittelle.
-* [WLAN Modem ESP8266 lowlevel](ESP8266/src/main.cpp) - Ansprechen des ESP8266 WLAN Modems via AT-Befehlen (nur IoTKit K64F Board).
-
-Für die Beispiele muss ein Terminalemulations Programm (siehe [Links](#links)) und für Windows 10 zusätzlich ein Treiber installiert werden. 
+Für die Beispiele muss [mbed Studio](https://os.mbed.com/docs/mbed-studio/) oder ein Terminalemulations Programm (siehe [Links](#links)) und für Windows 10 zusätzlich ein Treiber installiert werden. 
 
 Die Konfiguration und der Firmware Update des ESP8266 WLAN Modems ist weiter [unten](#konfiguration-esp8266) beschrieben. 
 
-* [Übungen](#übungen)
+#### [Serielle Ausgabe](main.cpp) 
 
-**Compilieren**
+Demonstriert die verschiedenen Ausgabemöglichkeiten mit `printf`.
 
-| Umgebung/Board    | Link/Befehl                      |
-| ----------------- | -------------------------------- |
-| Online Compiler | [Serialprintf](https://developer.mbed.org/teams/smdiotkitch/code/Serialprintf/) |
-| CLI (IoTKit K64F) | `mbed compile -m K64F --source . --source ../IoTKitV3/uart/Serialprintf; ` <br> `cp BUILD/K64F/GCC_ARM/template.bin $DAPLINK` |
-| CLI (DISCO_L475VG_IOT01A) | `mbed compile -m DISCO_L475VG_IOT01A -f --source . --source ../IoTKitV3/uart/Serialprintf` |
-| CLI (nucleo_f303re) | `mbed compile -m nucleo_f303re -f --source . --source ../IoTKitV3/uart/Serialprintf` |
-- - -
-| Umgebung/Board    | Link/Befehl                      |
-| ----------------- | -------------------------------- |
-| Online Compiler | [Serialscanf](https://developer.mbed.org/teams/smdiotkitch/code/Serialscanf/) |
-| CLI (IoTKit K64F) | `mbed compile -m K64F --source . --source ../IoTKitV3/uart/Serialscanf; ` <br> `cp BUILD/K64F/GCC_ARM/template.bin $DAPLINK` |
-| CLI (DISCO_L475VG_IOT01A) | `mbed compile -m DISCO_L475VG_IOT01A -f --source . --source ../IoTKitV3/uart/Serialscanf` |
-| CLI (nucleo_f303re) | `mbed compile -m nucleo_f303re -f --source . --source ../IoTKitV3/uart/Serialscanf` |
-- - -
-| Umgebung/Board    | Link/Befehl                      |
-| ----------------- | -------------------------------- |
-| Online Compiler | [SerialAll](https://os.mbed.com/compiler/#import:/teams/IoTKitV3/code/SerialAll/) |
-| CLI (IoTKit K64F) | `mbed compile -m K64F --source . --source ../IoTKitV3/uart/SerialAll; ` <br> `cp BUILD/K64F/GCC_ARM/template.bin $DAPLINK` |
-| CLI (DISCO_L475VG_IOT01A) | `mbed compile -m DISCO_L475VG_IOT01A -f --source . --source ../IoTKitV3/uart/SerialAll` |
-| CLI (nucleo_f303re) | `mbed compile -m nucleo_f303re -f --source . --source ../IoTKitV3/uart/SerialAll` |
-- - -
-| Umgebung/Board    | Link/Befehl                      |
-| ----------------- | -------------------------------- |
-| Online Compiler | [ESP8266](https://os.mbed.com/compiler/#import:/teams/IoTKitV3/code/ESP8266/) |
-| CLI (IoTKit K64F) | `mbed compile -m K64F --source . --source ../IoTKitV3/uart/ESP8266; ` <br> `cp BUILD/K64F/GCC_ARM/template.bin $DAPLINK` |
-| CLI (DISCO_L475VG_IOT01A) | `mbed compile -m DISCO_L475VG_IOT01A -f --source . --source ../IoTKitV3/uart/ESP8266` |
-| CLI (nucleo_f303re) | `mbed compile -m nucleo_f303re -f --source . --source ../IoTKitV3/uart/ESP8266` |
+#### Serielle Eingabe
+
+Demonstriert die verschiedenen Eingabemöglichkeiten mit `scanf`.
+
+<details><summary>main.cpp</summary>
+  
+</p></details> 
+ 
+#### Serielle Schnittstelle
+
+Ausgabe, mittels `printf` auf allen Seriellen Schnittstelle des Boards. Muss für DISCO_L475VG_IOT01A angepasst werden.
+
+<details><summary>main.cpp</summary>
+  
+</p></details> 
+
+
+#### Serial Master, Serial Slave
+
+Kommunikation zwischen zwei Boards über die Serielle Schnittelle.
+
+<details><summary>main.cpp</summary>
+  
+</p></details> 
+
+
+#### WLAN Modem ESP8266 lowlevel
+
+Ansprechen des ESP8266 WLAN Modems via AT-Befehlen (nur IoTKit K64F Board).
+
+<details><summary>main.cpp</summary>
+  
+</p></details> 
+
 
 ### Links
 
@@ -172,18 +173,20 @@ Auf der mbed MCU ist vorher ein einfaches Programm, z.B. DigitalOut zu uploaden,
 
 > [⇧ **Nach oben**](#)
 
-| Übung                     | Lösung       |
-| ------------------------- | ------------ |
-| **AT Commands**, ändern Sie das [ESP8266](#beispiele) Beispiel so, dass Ihre Webseite geholt wird. |  |
-| **ATCmdParser**, verwenden Sie den [ATCmdParser](https://os.mbed.com/docs/mbed-os/latest/apis/atcmdparser.html) von mbed um eine Webseite zu holen.<br>**Anwendungen**: Kommunikation mit AT Befehlsatz kompatiblen Modems. | [Lösung](02-Uebung/src/main.cpp) |
+### AT Commands
 
-### Compilieren
+Ändern Sie das [ESP8266](#beispiele) Beispiel so, dass Ihre Webseite geholt wird.
 
-| Umgebung/Board    | Link/Befehl                      |
-| ----------------- | -------------------------------- |
-| Online Compiler | [template](https://os.mbed.com/compiler/#import:/teams/IoTKitV3/code/template/) Importieren und Inhalt von main.cpp mit Übungscode überschreiben |
-| CLI (IoTKit K64F) | `mbed compile -m K64F --source . --source ../IoTKitV3/uart/02-Uebung; ` <br> `cp BUILD/K64F/GCC_ARM/template.bin $DAPLINK` |
-| CLI (DISCO_L475VG_IOT01A) | `mbed compile -m DISCO_L475VG_IOT01A -f --source . --source ../IoTKitV3/uart/02-Uebung` |
-| CLI (nucleo_f303re) | `mbed compile -m nucleo_f303re -f --source . --source ../IoTKitV3/uart/02-Uebung` |
+<details><summary>Lösung</summary>
+  
+</p></details> 
 
-* *02-Uebung* durch entsprechendes Übung Verzeichnis *xx-Uebung* etc. ersetzen.
+### ATCmdParser
+
+Verwenden Sie den [ATCmdParser](https://os.mbed.com/docs/mbed-os/latest/apis/atcmdparser.html) von mbed um eine Webseite zu holen.<br>
+
+*Anwendungen: Kommunikation mit AT Befehlsatz kompatiblen Modems. 
+
+<details><summary>Lösung</summary>
+  
+</p></details> 

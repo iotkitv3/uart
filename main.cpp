@@ -23,6 +23,7 @@ int main()
 
     sprintf ( buf, "%4.2f", f );
     printf  ( "float %s\n", buf );
+    exit( 0 );
 }
 
 
