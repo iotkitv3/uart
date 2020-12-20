@@ -302,7 +302,7 @@ Folgende Zeile in WLAN Modem ESP8266 lowlevel Beispiel ändern
 
 Verwenden Sie den [ATCmdParser](https://os.mbed.com/docs/mbed-os/latest/apis/atcmdparser.html) von mbed um eine Webseite zu holen.<br>
 
-*Anwendungen: Kommunikation mit AT Befehlsatz kompatiblen Modems. 
+* Anwendungen: Kommunikation mit AT Befehlsatz kompatiblen Modems. 
 
 <details><summary>Lösung</summary>
   
