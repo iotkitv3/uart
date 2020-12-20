@@ -32,7 +32,7 @@ Um Daten auf die Serielle Schnittstelle auszugeben, sind keine zusätzlichen Obj
 
 ### Beispiele
 
-Für die Beispiele muss [mbed Studio](https://os.mbed.com/docs/mbed-studio/) oder ein Terminalemulations Programm (siehe [Links](#links)) und für Windows 10 zusätzlich ein Treiber installiert werden. 
+Für die Beispiele muss [mbed Studio](https://os.mbed.com/studio/) oder ein Terminalemulations Programm (siehe [Links](#links)) und für Windows 10, zusätzlich ein Treiber installiert werden. 
 
 Die Konfiguration und der Firmware Update des ESP8266 WLAN Modems ist weiter [unten](#konfiguration-esp8266) beschrieben. 
 
@@ -46,31 +46,144 @@ Demonstriert die verschiedenen Eingabemöglichkeiten mit `scanf`.
 
 <details><summary>main.cpp</summary>
   
+    #include "mbed.h"
+    
+    int i;
+    float f;
+    char s[6];      // max. 5 Zeichen + \0
+    
+    int main()
+    {
+        printf  (" Eingabe int: " );
+        scanf   ( "%d", &i );
+        // Integer: Standard, genau 4-stellig, 4-stellig mit Vornullen
+        printf  ( "\nint %d, %4d, %04d\n", i, i, i );
+    
+        printf  ( "Eingabe float: " );
+        scanf   ( "%f", &f );
+        // float: Standard, Vor-/Nachkommastellen gerundet
+        printf  ( "\nfloat %f, %4.2f\n", f, f );
+    
+        printf  ( "Eingabe string (max 5 Zeichen): " );
+        scanf   ( "%5s", s );
+        // String: Standard, mit Anzahl der auszugebenden Zeichen
+        printf  ( "\nstring %s, %.*s\n", s, 3, s );
+    
+        //////////////////// String nach Integer, Float
+        char sint[] = "123";
+        char sfloat[] = "1.235";
+    
+        sscanf  ( sint, "%d", &i );
+        printf  ( "int %d\n", i );
+    
+        sscanf  ( sfloat, "%f", &f );
+        printf  ( "float %f\n", f );
+    
+        /////////////////// Parsen z.B. von HTTP Adressen mit Parametern
+        // http://<IP-Adresse>/?servo1=0.5&servo2=0.1 scannen. sscanf liefert die Anzahl erkannter %f Argumente
+        char addr[] = "GET /?servo1=0.1&servo2=0.9";
+        float s1, s2;
+    
+        // sscanf liefert die Anzahl erkannten Argumente
+        if  ( sscanf( addr, "GET /?servo1=%f&servo2=%f", &s1, &s2 ) == 2 )
+            printf  ( "Servo1 %f, Servo2 %f\n", s1, s2 );
+    }
+
 </p></details> 
  
-#### Serielle Schnittstelle
-
-Ausgabe, mittels `printf` auf allen Seriellen Schnittstelle des Boards. Muss für DISCO_L475VG_IOT01A angepasst werden.
-
-<details><summary>main.cpp</summary>
-  
-</p></details> 
-
-
-#### Serial Master, Serial Slave
-
-Kommunikation zwischen zwei Boards über die Serielle Schnittelle.
-
-<details><summary>main.cpp</summary>
-  
-</p></details> 
-
-
 #### WLAN Modem ESP8266 lowlevel
 
-Ansprechen des ESP8266 WLAN Modems via AT-Befehlen (nur IoTKit K64F Board).
+Ansprechen des ESP8266 WLAN Modems via AT-Befehlen (nur IoTKit K64F Board). Nicht getestet!
 
 <details><summary>main.cpp</summary>
+
+    /** ESP 8266 WLAN Modem initialisieren 
+     *  - muss als erstes erfolgen, damit die Verbindung zum AP steht
+     *  - wenn das Modem nicht sauber oder zu langsam funktoniert, wait Zeiten erhoehen
+    */
+    #include "mbed.h"
+    
+    UnbufferedSerial  pc( USBTX, USBRX );
+    UnbufferedSerial  dev( PTC15, PTC14 );
+    // Reset Modem
+    DigitalOut rst( PTA19 );
+    DigitalOut led1( D11 );
+    DigitalOut led4( D12 );
+    
+    /** Lesen von Modem, Ausgabe auf UART USB */
+    void recvChar()
+    {
+        char c;
+    
+        led1 = !led1;
+        // Read the data to clear the receive interrupt.
+        if ( pc.read(&c, 1) ) 
+            dev.write( &c, 1 );
+    }
+    
+    /** Schreiben auf Modem ab UART USB */
+    void sendChar()
+    {
+        char c;
+    
+        led4 = !led4;
+        if ( dev.read( &c, 1) ) 
+            pc.write( &c, 1 );    
+    }
+    
+    /** Senden eines Strings an das Modem */
+    void send( char* out )
+    {
+        dev.write( out, strlen( out ) );
+        dev.write( "\r\n", 2 );
+    }
+    
+    int main()
+    {
+        rst = 0;
+        // 1. Teil: Initialisierung - Baudraten muessen identisch sein
+        pc.baud( 115200 );
+        dev.baud( 115200 );
+        thread_sleep_for( 1000 );
+        rst = 1;
+    
+        // Register a callback to process a Rx (receive) interrupt.
+        pc.attach( &sendChar, SerialBase::RxIrq );
+        dev.attach( &recvChar, SerialBase::RxIrq );
+        
+        send( (char *) "AT+RST" );       // RESET Modem
+        thread_sleep_for( 2000 );
+        
+        send( (char *) "AT+GMR" );       // Ausgabe Firmware Version - optional
+        thread_sleep_for( 2000 );    
+        
+        send( (char *) "AT+CWMODE=1" );  // Station Mode, d.h. Modem = Client zu AP
+        thread_sleep_for( 1000 ); 
+        
+        //send( "AT+CWLAP" );     // List AP - optional
+        //wait( 10.0f );     
+        
+        send( (char *) "AT+CWJAP=\"LERNKUBE\",\"l3rnk4b3\"" );  // Verbindung AP (SSID, PW)
+        thread_sleep_for( 10000 );    
+        
+        send( (char *)"AT+CIFSR" );  // Ausgabe IP-Adresse
+        thread_sleep_for( 1000 );
+        
+        // 2. Teil: Webseite von google.com holen
+        send( (char *) "AT+CIPMUX=1" );  // Mehrere Verbindungen aktivieren
+        thread_sleep_for( 1000 );    
+        
+        send( (char *) "AT+CIPSTART=4,\"TCP\",\"httpbin.org\",80" );  // Socket zu google.com oeffnen
+        thread_sleep_for( 1000 ); 
+        
+        send( (char *) "AT+CIPSEND=4,18" );  // 18 Zeichen senden
+        thread_sleep_for( 1000 );     
+        
+        send( (char *) "GET / HTTP/1.0\r\n" );  // HTTP GET
+        thread_sleep_for( 1000 ); 
+    
+        exit( 0 );    
+    }  
   
 </p></details> 
 
@@ -178,7 +291,11 @@ Auf der mbed MCU ist vorher ein einfaches Programm, z.B. DigitalOut zu uploaden,
 Ändern Sie das [ESP8266](#beispiele) Beispiel so, dass Ihre Webseite geholt wird.
 
 <details><summary>Lösung</summary>
-  
+
+Folgende Zeile in WLAN Modem ESP8266 lowlevel Beispiel ändern
+
+    send( (char *) "AT+CIPSTART=4,\"TCP\",\"httpbin.org\",80" );  // Socket zu google.com oeffnen
+
 </p></details> 
 
 ### ATCmdParser
@@ -188,5 +305,59 @@ Verwenden Sie den [ATCmdParser](https://os.mbed.com/docs/mbed-os/latest/apis/atc
 *Anwendungen: Kommunikation mit AT Befehlsatz kompatiblen Modems. 
 
 <details><summary>Lösung</summary>
+  
+    /* ATCmdParser usage example
+     */
+    
+    #include "mbed.h"
+    #include "platform/ATCmdParser.h"
+    
+    #define   ESP8266_DEFAULT_BAUD_RATE   115200
+    
+    UnbufferedSerial *serial;
+    ATCmdParser *parser;
+    
+    int main()
+    {
+        printf( "\nATCmdParser with ESP8266 example" );
+    
+        serial = new UnbufferedSerial( MBED_CONF_IOTKIT_ESP8266_TX, MBED_CONF_IOTKIT_ESP8266_RX );
+        serial->baud( ESP8266_DEFAULT_BAUD_RATE );
+        parser = new ATCmdParser( serial );
+        parser->debug_on( 1 );
+        parser->set_delimiter( "\r\n" );
+    
+        //Now get the FW version number of ESP8266 by sending an AT command
+        printf( "\nATCmdParser: Retrieving FW version" );
+        parser->send( "AT+GMR" );
+        int version;
+        if ( parser->recv( "SDK version:%d", &version ) && parser->recv( "OK" ) )
+        {
+            printf( "\nATCmdParser: FW version: %d", version );
+            printf( "\nATCmdParser: Retrieving FW version success" );
+        }
+        else
+        {
+            printf( "\nATCmdParser: Retrieving FW version failed" );
+            return -1;
+        }
+    
+        parser->send( "AT+CWMODE=1" );  // Station Mode, d.h. Modem = Client zu AP
+        if  ( parser->recv( "OK" ) )
+        {
+            parser->send( "AT+CIFSR" );  // Ausgabe IP-Adresse
+            parser->recv( "OK" );
+            parser->send( "AT+CIPMUX=1" );  // Mehrere Verbindungen aktivieren
+            parser->recv( "OK" );
+            parser->send( "AT+CIPSTART=4,\"TCP\",\"httpbin.org\",80" );  // Socket zu google.com oeffnen
+            parser->recv( "OK" );
+            parser->send( "AT+CIPSEND=4,18" );  // 11 Zeichen senden
+            parser->recv( "OK" );
+            parser->send( "GET / HTTP/1.0\r\n" );  // HTTP GET
+            parser->recv( "OK" );
+        }
+    
+        printf( "\nDone\n" );
+    }
   
 </p></details> 
